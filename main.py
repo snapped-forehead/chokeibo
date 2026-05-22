@@ -5,6 +5,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from flask import Flask, redirect, request, session, jsonify, render_template, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
@@ -31,6 +32,7 @@ JST = timezone(timedelta(hours=9))
 
 app = Flask(__name__, template_folder=str(TEMPLATE_DIR))
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # ローカル開発時はHTTPを許可
 if os.environ.get('FLASK_ENV') != 'production':
