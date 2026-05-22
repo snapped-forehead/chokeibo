@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ちょけいぼ - ちょっとした家計簿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'BIZ UDPGothic', 'Hiragino Sans', sans-serif;
+  background: #F8F4EC;
+  color: #2B2B2B;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.inner { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+
+/* ヘッダー */
+#site-header {
+  background: #1C3A0A;
+  padding: 12px 0;
+  text-align: center;
+}
+#site-header .logo {
+  color: #C8A020;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+#site-header .logo span { color: #fff; font-size: 0.8rem; font-weight: 400; display: block; margin-top: 2px; }
+
+/* ヒーロー */
+#hero {
+  background: #1C3A0A;
+  padding: 44px 0 48px;
+  text-align: center;
+  border-bottom: 4px solid #C8A020;
+}
+#hero .catch {
+  color: #fff;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+#hero .catch em {
+  color: #C8A020;
+  font-style: normal;
+}
+#hero .sub {
+  color: #b8d4a0;
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+.btn-main {
+  display: inline-block;
+  background: #C8A020;
+  color: #1C3A0A;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 15px 40px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: opacity .2s;
+  border: none;
+  cursor: pointer;
+}
+.btn-main:hover { opacity: .88; }
+#hero .note { color: #6b8c5a; font-size: 0.78rem; margin-top: 10px; }
+
+/* セクション共通 */
+section { padding: 44px 0; }
+section.alt { background: #fff; }
+.sec-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1C3A0A;
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #5A9E2F;
+}
+
+/* 特徴 */
+.features { display: flex; flex-direction: column; gap: 16px; }
+.feature-card {
+  background: #F8F4EC;
+  border: 2px solid #E5E0D2;
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+section.alt .feature-card { background: #fff; }
+.feature-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.feature-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1C3A0A;
+  margin-bottom: 4px;
+}
+.feature-card p { font-size: 0.875rem; color: #6B6B6B; }
+
+/* ステップ */
+.steps { display: flex; flex-direction: column; gap: 0; counter-reset: step; }
+.step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: 24px;
+}
+.step:last-child { padding-bottom: 0; }
+.step::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: #E5E0D2;
+}
+.step:last-child::before { display: none; }
+.step-num {
+  width: 40px;
+  height: 40px;
+  background: #1C3A0A;
+  color: #C8A020;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.step-body h3 { font-size: 1rem; font-weight: 700; color: #1C3A0A; margin-bottom: 4px; padding-top: 8px; }
+.step-body p { font-size: 0.875rem; color: #6B6B6B; }
+
+/* CTA */
+#cta {
+  background: #1C3A0A;
+  padding: 48px 0;
+  text-align: center;
+}
+#cta h2 { color: #fff; font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+#cta p { color: #b8d4a0; font-size: 0.875rem; margin-bottom: 24px; }
+#cta .note { color: #6b8c5a; font-size: 0.78rem; margin-top: 12px; }
+
+/* 注意事項 */
+#notes { background: #F8F4EC; padding: 32px 0; }
+#notes ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+#notes ul li {
+  font-size: 0.84rem;
+  color: #6B6B6B;
+  padding-left: 1.2em;
+  position: relative;
+}
+#notes ul li::before { content: '・'; position: absolute; left: 0; }
+
+/* フッター */
+footer {
+  background: #1C3A0A;
+  padding: 20px 0;
+  text-align: center;
+  color: #6b8c5a;
+  font-size: 0.78rem;
+}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="inner">
+    <div class="logo">ちょけいぼ<span>ちょっとした家計簿</span></div>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="inner">
+    <p class="catch">ダブルクリックするだけの<br><em>かんたん家計簿</em></p>
+    <p class="sub">データはあなたのGoogleスプレッドシートに保存。<br>インストール不要・完全無料。</p>
+    <a href="https://forms.gle/vmweNwdrCBAghNds9" class="btn-main">無料で使ってみる（Gmail登録）</a>
+    <p class="note">※ Gmailアドレスの登録後、ダウンロードリンクをお送りします</p>
+    <p class="note">※ 本アプリはGoogleの認証機能を使用しています。ご利用前に開発者側でGmailアドレスの登録が必要なため、事前にご登録をお願いしています。</p>
+  </div>
+</section>
+
+<section>
+  <div class="inner">
+    <h2 class="sec-title">ちょけいぼの特徴</h2>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div>
+          <h3>スマホ感覚でポチポチ入力</h3>
+          <p>電卓風のテンキーで金額を入力し、科目ボタンをタップするだけ。難しい操作は一切ありません。</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div>
+          <h3>データはあなただけのもの</h3>
+          <p>入力データはあなた自身のGoogleスプレッドシートに保存されます。開発者を含む第三者は一切アクセスできません。</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div>
+          <h3>期間別・科目別の集計を自動表示</h3>
+          <p>当日・今週・今月・今年など7つの期間で、科目ごとの合計を自動集計。家計の流れが一目でわかります。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="inner">
+    <h2 class="sec-title">使い始めるまでの流れ</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Gmailアドレスを登録</h3>
+          <p>下のボタンからフォームにGmailアドレスを入力するだけ。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>ダウンロードリンクが届く</h3>
+          <p>登録確認後、exeファイルのダウンロードリンクをメールでお送りします（通常1営業日以内）。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>exeをダブルクリック</h3>
+          <p>ダウンロードしたファイルをダブルクリックするとブラウザが開きます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Googleログインして完了</h3>
+          <p>初回のみGoogleアカウントでログイン。次回からはダブルクリックするだけで即起動します。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="inner">
+    <h2>さっそく使ってみよう</h2>
+    <p>完全無料・Googleアカウントがあればすぐ使えます</p>
+    <a href="https://forms.gle/vmweNwdrCBAghNds9" class="btn-main">無料で使ってみる（Gmail登録）</a>
+    <p class="note">※ Windows対応（Mac版は未対応）</p>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="inner">
+    <ul>
+      <li>本アプリはWindows専用です（Mac・スマートフォンには対応していません）</li>
+      <li>Googleアカウント（Gmail）が必要です</li>
+      <li>データはご自身のGoogleスプレッドシートに保存されます</li>
+      <li>開発者はお客様のデータに一切アクセスしません</li>
+      <li>本アプリの使用により生じたいかなる損害についても、開発者は責任を負いません</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="inner">
+    <p>&copy; 2026 ちょけいぼ</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勘定科目 編集</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+       background: #f0f4f8; color: #333; }
+.header { background: #2c3e50; color: #fff; padding: 16px;
+          font-size: 18px; font-weight: bold; text-align: center; }
+.container { max-width: 600px; margin: 0 auto; padding: 16px; }
+.toast { background: #27ae60; color: #fff; padding: 10px 16px;
+         border-radius: 6px; margin-bottom: 12px; text-align: center; }
+.card { background: #fff; border-radius: 10px; padding: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.1); margin-bottom: 16px; }
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
+       background: #fff; border-radius: 8px; transition: box-shadow .15s; }
+.row.dragging { opacity: .4; }
+.row.drag-over { box-shadow: 0 0 0 2px #3498db; }
+.handle { cursor: grab; color: #aaa; font-size: 20px; padding: 4px 2px;
+          user-select: none; touch-action: none; flex-shrink: 0; line-height: 1; }
+.handle:active { cursor: grabbing; }
+.preview { display: inline-block; width: 24px; height: 24px; border-radius: 4px; flex-shrink: 0; }
+.row input[type=color] { width: 44px; height: 36px; padding: 2px;
+                          border: 1px solid #ccc; border-radius: 6px; cursor: pointer; }
+.row input[type=text]  { flex: 1; padding: 8px 10px; border: 1px solid #ccc;
+                          border-radius: 6px; font-size: 15px; }
+.del-btn { background: #e74c3c; color: #fff; border: none;
+           border-radius: 6px; padding: 8px 12px; font-size: 14px;
+           cursor: pointer; flex-shrink: 0; }
+.add-btn  { width: 100%; padding: 12px; background: #3498db; color: #fff;
+            border: none; border-radius: 8px; font-size: 16px; cursor: pointer;
+            margin-bottom: 12px; }
+.save-btn { width: 100%; padding: 14px; background: #27ae60; color: #fff;
+            border: none; border-radius: 8px; font-size: 17px; font-weight: bold;
+            cursor: pointer; }
+.back-link { display: block; text-align: center; margin-top: 16px;
+             color: #3498db; text-decoration: none; font-size: 15px; }
+#drag-ghost {
+  position: fixed; pointer-events: none; z-index: 999;
+  background: #fff; border-radius: 8px; padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.25); font-size: 15px;
+  font-weight: bold; color: #333; display: none; white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="header">勘定科目 編集</div>
+<div id="drag-ghost"></div>
+<div class="container">
+  {% if saved %}
+  <div class="toast">保存しました</div>
+  {% endif %}
+  <div class="card">
+    <form method="post" id="form">
+      <input type="hidden" name="action" value="save">
+      <div id="list">
+        {% for cat in categories %}
+        <div class="row" draggable="true">
+          <span class="handle" title="ドラッグして並び替え">&#9776;</span>
+          <input type="hidden" name="id[]" value="{{ cat.id }}">
+          <span class="preview" style="background:{{ cat.color }}"></span>
+          <input type="color" name="color[]" value="{{ cat.color }}" oninput="updatePreview(this)">
+          <input type="text"  name="name[]" value="{{ cat.name }}" placeholder="科目名" required>
+          <button type="button" class="del-btn" onclick="delRow(this)">削除</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="add-btn" onclick="addRow()">＋ 追加</button>
+      <button type="submit" class="save-btn">保存する</button>
+    </form>
+  </div>
+  <a href="/" class="back-link">← 入力画面に戻る</a>
+</div>
+<script>
+let nextId = {{ (categories | length) + 1000 }};
+function updatePreview(c) { c.closest('.row').querySelector('.preview').style.background = c.value; }
+function delRow(btn) {
+  if (document.querySelectorAll('#list .row').length <= 1) { alert('最低1つは必要です'); return; }
+  btn.closest('.row').remove();
+}
+function addRow() {
+  const id = nextId++;
+  const div = document.createElement('div');
+  div.className = 'row'; div.draggable = true;
+  div.innerHTML = `<span class="handle">&#9776;</span>
+    <input type="hidden" name="id[]" value="${id}">
+    <span class="preview" style="background:#888888"></span>
+    <input type="color" name="color[]" value="#888888" oninput="updatePreview(this)">
+    <input type="text" name="name[]" value="" placeholder="科目名" required>
+    <button type="button" class="del-btn" onclick="delRow(this)">削除</button>`;
+  document.getElementById('list').appendChild(div);
+  initDrag(div); initTouch(div);
+}
+let dragSrc = null;
+function initDrag(row) {
+  row.addEventListener('dragstart', e => { dragSrc = row; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  row.addEventListener('dragend', () => { dragSrc = null; document.querySelectorAll('.row').forEach(r => r.classList.remove('dragging','drag-over')); });
+  row.addEventListener('dragover', e => { e.preventDefault(); if (row !== dragSrc) row.classList.add('drag-over'); });
+  row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+  row.addEventListener('drop', e => {
+    e.preventDefault(); if (!dragSrc || dragSrc === row) return;
+    const list = document.getElementById('list');
+    const rows = [...list.querySelectorAll('.row')];
+    const fi = rows.indexOf(dragSrc), ti = rows.indexOf(row);
+    list.insertBefore(dragSrc, fi < ti ? row.nextSibling : row);
+    row.classList.remove('drag-over');
+  });
+}
+const ghost = document.getElementById('drag-ghost');
+let touchSrc = null;
+function initTouch(row) {
+  const handle = row.querySelector('.handle');
+  handle.addEventListener('touchstart', e => {
+    touchSrc = row;
+    ghost.textContent = '☰ ' + (row.querySelector('input[type=text]').value || '（未入力）');
+    ghost.style.cssText = `display:block;left:50%;transform:translateX(-50%);top:${e.touches[0].clientY-20}px`;
+    row.classList.add('dragging'); e.preventDefault();
+  }, { passive: false });
+  handle.addEventListener('touchmove', e => {
+    if (!touchSrc) return; e.preventDefault();
+    ghost.style.top = (e.touches[0].clientY - 20) + 'px';
+    ghost.style.display = 'none';
+    const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    ghost.style.display = 'block';
+    const tr = el && el.closest('.row');
+    document.querySelectorAll('.row').forEach(r => r.classList.remove('drag-over'));
+    if (tr && tr !== touchSrc) tr.classList.add('drag-over');
+  }, { passive: false });
+  handle.addEventListener('touchend', () => {
+    if (!touchSrc) return;
+    ghost.style.display = 'none'; touchSrc.classList.remove('dragging');
+    document.querySelectorAll('.row').forEach(r => {
+      if (r.classList.contains('drag-over')) {
+        r.classList.remove('drag-over');
+        const list = document.getElementById('list');
+        const rows = [...list.querySelectorAll('.row')];
+        const fi = rows.indexOf(touchSrc), ti = rows.indexOf(r);
+        list.insertBefore(touchSrc, fi < ti ? r.nextSibling : r);
+      }
+    });
+    touchSrc = null;
+  });
+}
+document.querySelectorAll('#list .row').forEach(r => { initDrag(r); initTouch(r); });
+</script>
+</body>
+</html>

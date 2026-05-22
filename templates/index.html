@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2c3e50">
+<title>取引入力</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: #1a2332;
+  color: #fff;
+  overflow: hidden;
+}
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+}
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #2c3e50;
+  border-bottom: 1px solid #3d5166;
+  flex-shrink: 0;
+}
+#header .label { font-size: 12px; color: #aab; }
+#date-display {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #3d5166;
+  background: #1a2332;
+}
+#today-btn {
+  font-size: 11px;
+  color: #5dade2;
+  border: 1px solid #5dade2;
+  background: transparent;
+  border-radius: 10px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+#nav-summary {
+  font-size: 11px;
+  color: #aab;
+  border: 1px solid #3d5166;
+  background: transparent;
+  border-radius: 10px;
+  padding: 3px 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+#amount-area {
+  background: #2c3e50;
+  padding: 10px 16px 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+#currency-sign { font-size: 20px; color: #aab; font-weight: bold; }
+#amount-display {
+  font-size: 38px;
+  font-weight: bold;
+  color: #f0f4f8;
+  letter-spacing: 2px;
+  flex: 1;
+  text-align: right;
+  line-height: 1.1;
+}
+#amount-display.zero { color: #5d6d7e; }
+#tax-label { font-size: 11px; color: #7f8c8d; align-self: flex-end; padding-bottom: 4px; }
+#input-area { display: flex; flex: 1; min-height: 0; }
+#numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 2px;
+  padding: 6px;
+  background: #1a2332;
+  flex: 0 0 58%;
+}
+.num-btn {
+  background: #2c3e50;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background .1s;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.num-btn:active { background: #4a6278; transform: scale(.95); }
+.num-btn.del { font-size: 20px; background: #3d2b2b; color: #e74c3c; }
+.num-btn.del:active { background: #5a3030; }
+#categories {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 6px 6px 2px;
+  gap: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #1a2332;
+}
+.cat-btn {
+  flex: 1;
+  min-height: 36px;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity .1s, transform .1s;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+  padding: 4px;
+}
+.cat-btn:active { opacity: .7; transform: scale(.96); }
+.cat-btn.selected {
+  outline: 3px solid #fff;
+  outline-offset: -2px;
+  box-shadow: 0 0 10px rgba(255,255,255,.3);
+}
+#note-area {
+  padding: 6px 10px;
+  background: #2c3e50;
+  flex-shrink: 0;
+  border-top: 1px solid #3d5166;
+}
+#note {
+  width: 100%;
+  background: #1a2332;
+  border: 1px solid #3d5166;
+  border-radius: 8px;
+  color: #f0f4f8;
+  font-size: 14px;
+  padding: 8px;
+  resize: none;
+  line-height: 1.4;
+  font-family: inherit;
+}
+#note::placeholder { color: #5d6d7e; }
+#note-row { display: flex; align-items: center; gap: 6px; }
+#note-label { font-size: 11px; color: #7f8c8d; white-space: nowrap; }
+#footer {
+  padding: 8px 10px;
+  background: #1a2332;
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#submit-btn {
+  flex: 1;
+  padding: 14px;
+  background: #27ae60;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background .15s;
+}
+#submit-btn:active { background: #1e8449; }
+#submit-btn:disabled { background: #2d4a3a; color: #5a7a60; cursor: not-allowed; }
+#edit-cat-btn {
+  padding: 10px;
+  background: #2c3e50;
+  border: 1px solid #3d5166;
+  border-radius: 10px;
+  color: #aab;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #27ae60;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 100;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.error { background: #e74c3c; }
+#date-input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+#loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+#loading.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid #fff3;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <span class="label">日付</span>
+    <span id="date-display" onclick="openDatePicker()"></span>
+    <input type="date" id="date-input" onchange="onDateChange(this.value)">
+    <button id="today-btn" onclick="setToday()">今日</button>
+    <a href="/summary" id="nav-summary">集計</a>
+  </div>
+  <div id="amount-area">
+    <span id="currency-sign">¥</span>
+    <span id="amount-display" class="zero">0</span>
+    <span id="tax-label">税込</span>
+  </div>
+  <div id="input-area">
+    <div id="numpad">
+      <button class="num-btn" onclick="numInput('7')">7</button>
+      <button class="num-btn" onclick="numInput('8')">8</button>
+      <button class="num-btn" onclick="numInput('9')">9</button>
+      <button class="num-btn" onclick="numInput('4')">4</button>
+      <button class="num-btn" onclick="numInput('5')">5</button>
+      <button class="num-btn" onclick="numInput('6')">6</button>
+      <button class="num-btn" onclick="numInput('1')">1</button>
+      <button class="num-btn" onclick="numInput('2')">2</button>
+      <button class="num-btn" onclick="numInput('3')">3</button>
+      <button class="num-btn" onclick="numInput('00')">00</button>
+      <button class="num-btn" onclick="numInput('0')">0</button>
+      <button class="num-btn del" onclick="backspace()">⌫</button>
+    </div>
+    <div id="categories">
+      {% for cat in categories %}
+      <button class="cat-btn"
+              style="background: {{ cat.color }}"
+              data-name="{{ cat.name }}"
+              onclick="selectCategory(this)">{{ cat.name }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="note-area">
+    <div id="note-row">
+      <span id="note-label">摘要</span>
+      <textarea id="note" rows="2" placeholder="任意入力"></textarea>
+    </div>
+  </div>
+  <div id="footer">
+    <button id="submit-btn" onclick="submitForm()" disabled>登録する</button>
+    <button id="edit-cat-btn" onclick="location.href='/categories'">科目<br>編集</button>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="loading"><div class="spinner"></div></div>
+<script>
+let amountStr = '';
+let selectedCategory = '';
+let currentDate = '{{ today }}';
+
+(function init() {
+  setDate(currentDate);
+  updateAmountDisplay();
+  updateSubmitBtn();
+})();
+
+function formatDateJP(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const days = ['日','月','火','水','木','金','土'];
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}(${days[d.getDay()]})`;
+}
+function setDate(dateStr) {
+  currentDate = dateStr;
+  document.getElementById('date-display').textContent = formatDateJP(dateStr);
+  document.getElementById('date-input').value = dateStr;
+}
+function setToday() {
+  const today = new Date();
+  const s = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  setDate(s);
+}
+function openDatePicker() {
+  const el = document.getElementById('date-input');
+  el.showPicker ? el.showPicker() : el.click();
+}
+function onDateChange(val) { if (val) setDate(val); }
+
+function numInput(val) {
+  if (amountStr === '0') amountStr = '';
+  const next = amountStr + val;
+  if (parseInt(next, 10) > 99999999) return;
+  amountStr = String(parseInt(next, 10));
+  updateAmountDisplay();
+  updateSubmitBtn();
+}
+function backspace() {
+  amountStr = amountStr.slice(0, -1);
+  updateAmountDisplay();
+  updateSubmitBtn();
+}
+function updateAmountDisplay() {
+  const el = document.getElementById('amount-display');
+  const num = parseInt(amountStr, 10) || 0;
+  el.textContent = num.toLocaleString('ja-JP');
+  el.classList.toggle('zero', num === 0);
+}
+function selectCategory(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCategory = btn.dataset.name;
+  updateSubmitBtn();
+}
+function updateSubmitBtn() {
+  document.getElementById('submit-btn').disabled = !(parseInt(amountStr, 10) > 0 && selectedCategory);
+}
+async function submitForm() {
+  const amount = parseInt(amountStr, 10);
+  if (amount <= 0 || !selectedCategory) return;
+  document.getElementById('loading').classList.add('show');
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: currentDate, amount, category: selectedCategory, note: document.getElementById('note').value.trim() }),
+    });
+    const data = await res.json();
+    document.getElementById('loading').classList.remove('show');
+    if (data.success) { showToast('登録しました ✓'); resetForm(); }
+    else showToast('エラー: ' + data.message, true);
+  } catch(e) {
+    document.getElementById('loading').classList.remove('show');
+    showToast('通信エラーが発生しました', true);
+  }
+}
+function resetForm() {
+  amountStr = ''; selectedCategory = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('note').value = '';
+  setToday(); updateAmountDisplay(); updateSubmitBtn();
+}
+let toastTimer;
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('error', isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
