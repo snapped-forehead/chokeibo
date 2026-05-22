@@ -18,7 +18,7 @@ def get_periods(today=None):
     last_last_month  = first_this_month - timedelta(days=1)
 
     return {
-        '当日':  (t, t),
+        '今日':  (t, t),
         '昨日':  (t - timedelta(days=1), t - timedelta(days=1)),
         '今週':  (last_monday, t),
         '先週':  (prev_monday, last_monday - timedelta(days=1)),
